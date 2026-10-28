@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<title>Pocket Deck</title>
+<meta name="theme-color" content="#0d241b">
+<style>
+:root{
+  --felt:#0f3b2a; --felt-2:#0b2e21; --felt-3:#145238; --ink:#f3efe4; --muted:#a9bfb3;
+  --line:rgba(255,255,255,.12); --gold:#e6b450; --red:#d9483b; --card:#fbf8f1; --card-ink:#1b1b1b;
+  --cardred:#c8302a; --back1:#7a1f2b; --back2:#5c1520; --ok:#57c785; --danger:#e0574a;
+  --cw:58px; --ch:84px; --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(120% 80% at 50% 0%,var(--felt-3),var(--felt) 45%,var(--felt-2));color:var(--ink);
+  font:15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;min-height:100dvh;overscroll-behavior:none}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.hidden{display:none!important}
+
+/* ---------- home ---------- */
+.home{max-width:440px;margin:0 auto;padding:40px 18px 30px;display:flex;flex-direction:column;gap:18px;min-height:100dvh}
+.logo{display:flex;align-items:center;gap:12px}
+.logo .fan{position:relative;width:54px;height:54px}
+.logo .fan i{position:absolute;left:14px;top:4px;width:28px;height:40px;border-radius:5px;background:var(--card);border:1px solid #0003;transform-origin:50% 100%}
+.logo .fan i:nth-child(1){transform:rotate(-22deg)}
+.logo .fan i:nth-child(2){transform:rotate(0deg);color:var(--cardred);display:grid;place-items:center;font-size:18px;font-style:normal}
+.logo .fan i:nth-child(3){transform:rotate(22deg);background:linear-gradient(135deg,var(--back1),var(--back2))}
+.logo h1{margin:0;font-size:30px;letter-spacing:-.02em}
+.logo p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.panel{background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel h2{margin:0;font-size:16px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+input.t,select.t{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;color:var(--ink);width:100%}
+input.code{text-transform:uppercase;letter-spacing:.35em;font-weight:700;text-align:center;font-size:22px}
+.btn{background:var(--gold);color:#241a05;font-weight:700;border-radius:11px;padding:12px 16px;font-size:15px}
+.btn.alt{background:rgba(255,255,255,.1);color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:8px 11px;font-size:13px;border-radius:9px}
+.btn.danger{background:var(--danger);color:#fff}
+.btn:disabled{opacity:.35;cursor:default}
+.err{color:#ffb4a8;font-size:13px;min-height:1em}
+.small{font-size:12px;color:var(--muted)}
+
+/* ---------- game ---------- */
+.game{display:flex;flex-direction:column;min-height:100dvh}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;background:rgba(8,30,22,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.codechip{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-weight:800;letter-spacing:.2em;font-size:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.dot.off{background:var(--danger)}
+.top .title{flex:1;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.main{flex:1;padding:12px 12px 8px;display:flex;flex-direction:column;gap:12px}
+.banner{border-radius:12px;padding:9px 12px;background:rgba(230,180,80,.15);border:1px solid rgba(230,180,80,.4);font-size:14px}
+.banner b{color:var(--gold)}
+.flipbox{display:flex;gap:14px;align-items:center;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.flipbox .rule h3{margin:0 0 3px;font-size:18px;color:var(--gold)}
+.flipbox .rule p{margin:0;font-size:14px;color:var(--ink)}
+.flipbox .rule .small{margin-top:5px}
+.sect{background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}
+.sect h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
+.piles{display:flex;gap:18px;align-items:flex-start}
+.pile{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.pile .stack{position:relative}
+.empty{width:var(--cw);height:var(--ch);border-radius:8px;border:2px dashed var(--line);display:grid;place-items:center;font-size:11px;color:var(--muted);text-align:center;padding:4px}
+.board .bc{display:flex;flex-direction:column;align-items:center;gap:2px}
+.board .by{font-size:10px;color:var(--muted);max-width:var(--cw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* cards */
+.card{width:var(--cw);height:var(--ch);border-radius:8px;background:var(--card);color:var(--card-ink);position:relative;flex:none;
+  box-shadow:0 2px 0 rgba(0,0,0,.25),0 4px 10px rgba(0,0,0,.25);border:1px solid rgba(0,0,0,.15);user-select:none;transition:transform .12s ease}
+.card.red{color:var(--cardred)}
+.card .ix{position:absolute;left:5px;top:3px;font-weight:800;font-size:15px;line-height:1;text-align:center}
+.card .ix small{display:block;font-size:13px}
+.card .ix.b{left:auto;top:auto;right:5px;bottom:3px;transform:rotate(180deg)}
+.card .pip{position:absolute;inset:0;display:grid;place-items:center;font-size:28px}
+.card .pip.face{font-size:24px;font-weight:800;font-family:Georgia,serif}
+.card.back{background:repeating-linear-gradient(45deg,var(--back1) 0 6px,var(--back2) 6px 12px);border:3px solid var(--card)}
+.card.back::after{content:"";position:absolute;inset:4px;border-radius:4px;border:1px solid rgba(255,255,255,.35)}
+.card.sm{--cw:34px;--ch:48px;border-radius:5px}
+.card.sm .ix{font-size:11px;left:3px;top:2px}.card.sm .ix small{font-size:10px}
+.card.sm .ix.b{display:none}
+.card.sm .pip{font-size:17px;padding-top:8px}.card.sm .pip.face{font-size:14px}
+.card.sm.back{border-width:2px}
+.card.lg{--cw:84px;--ch:120px}
+.card.lg .ix{font-size:20px}.card.lg .ix small{font-size:17px}.card.lg .pip{font-size:44px}.card.lg .pip.face{font-size:36px}
+.card.joker .pip{font-size:24px}
+.card.sel{transform:translateY(-14px);box-shadow:0 0 0 3px var(--gold),0 8px 16px rgba(0,0,0,.4)}
+.count{position:absolute;right:-6px;top:-6px;background:var(--gold);color:#241a05;border-radius:999px;font-size:11px;font-weight:800;padding:1px 6px;z-index:2}
+
+/* players */
+.plist{display:flex;flex-direction:column;gap:8px}
+.pl{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border-radius:11px;background:rgba(255,255,255,.04);border:1px solid transparent}
+.pl.turn{border-color:var(--gold);background:rgba(230,180,80,.1)}
+.pl .hd{display:flex;align-items:center;gap:8px}
+.pl .nm{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.12);color:var(--ink)}
+.tag.g{background:var(--gold);color:#241a05}
+.tag.st{background:#2f6b8f}
+.tag.off{background:#5a2a2a}
+.minis{display:flex}
+.minis .card.sm{margin-left:-20px}.minis .card.sm:first-child{margin-left:0}
+.log{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px;max-height:110px;overflow:auto}
+
+/* hand dock */
+.dock{position:sticky;bottom:0;z-index:6;background:rgba(6,22,16,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:8px 10px calc(env(safe-area-inset-bottom) + 8px)}
+.dock .dh{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;color:var(--muted)}
+.dock .dh b{color:var(--ink)}
+.dock .dh .sp{flex:1}
+.hand{display:flex;gap:6px;overflow-x:auto;padding:18px 4px 8px;min-height:calc(var(--ch) + 30px);scrollbar-width:none}
+.hand::-webkit-scrollbar{display:none}
+.hand.peekable{touch-action:pan-x}
+.hand .none{color:var(--muted);font-size:13px;align-self:center;padding-left:4px}
+.acts{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-top:4px}
+.acts::-webkit-scrollbar{display:none}
+.acts .btn{flex:none}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:88dvh;overflow:auto;background:#0c271d;border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom) + 18px)}
+.sheet .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:sticky;top:-14px;background:#0c271d;padding:4px 0 8px;z-index:1}
+.sheet .sh h3{margin:0;font-size:18px}
+.grp{border-top:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:9px}
+.grp:first-of-type{border-top:0}
+.grp h5{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.stepper{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stepper button{width:38px;height:38px;font-size:20px;background:rgba(255,255,255,.07)}
+.stepper span{min-width:40px;text-align:center;font-weight:800;font-size:17px}
+.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;padding:3px 0}
+.tog input{width:44px;height:26px;appearance:none;background:#33463e;border-radius:999px;position:relative;cursor:pointer;flex:none;transition:background .15s}
+.tog input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.tog input:checked{background:var(--ok)}
+.tog input:checked::after{left:21px}
+.rules{white-space:pre-line;font-size:14px;line-height:1.5}
+/* game picker & ready-to-deal */
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.gtile{display:flex;align-items:center;gap:10px;text-align:left;padding:10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line);min-height:62px}
+.gtile.on{border-color:var(--gold);background:rgba(230,180,80,.14)}
+.gico{flex:none;width:36px;height:36px;border-radius:9px;background:var(--card);color:var(--card-ink);display:grid;place-items:center;font-weight:800;font-size:17px;font-family:Georgia,serif}
+.gtile b{display:block;font-size:14px}
+.gtile span{display:block;font-size:11.5px;color:var(--muted);line-height:1.25;margin-top:1px}
+.ready{background:linear-gradient(160deg,rgba(230,180,80,.18),rgba(0,0,0,.18));border:1px solid rgba(230,180,80,.45);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:12px}
+.ready .rh{display:flex;align-items:center;gap:12px}
+.ready .rh .gico{width:46px;height:46px;font-size:22px}
+.ready h3{margin:0;font-size:19px}
+.ready .btn.big{font-size:18px;padding:15px}
+.titlebtn{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-weight:700;text-align:left}
+.titlebtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.titlebtn i{font-style:normal;font-size:11px;color:var(--muted)}
+.qbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.toast{position:fixed;left:50%;bottom:180px;transform:translateX(-50%);background:#000c;color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;z-index:40;pointer-events:none;max-width:90vw;text-align:center}
+@media (min-width:700px){ :root{--cw:66px;--ch:94px} .main{max-width:900px;margin:0 auto;width:100%} .dock>div{max-width:900px;margin-left:auto;margin-right:auto} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="sheet"></div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+"use strict";
+/* ================= utilities ================= */
+const qs = new URLSearchParams(location.search);
+const LOCAL = qs.has('local');           // test mode: tabs in one browser talk over BroadcastChannel
+const PREFIX = 'pocketdeck-v1-';
+const SUITS = {S:'♠',H:'♥',D:'♦',C:'♣'};
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const store = (kind)=>({get(k){try{return window[kind].getItem(k)}catch(e){return null}},set(k,v){try{window[kind].setItem(k,v)}catch(e){}},del(k){try{window[kind].removeItem(k)}catch(e){}}});
+const ss = store('sessionStorage'), ls = store('localStorage');
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function rnd(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;}
+function uid(n=10){const a='abcdefghijkmnpqrstuvwxyz23456789';let s='';for(let i=0;i<n;i++)s+=a[rnd(a.length)];return s;}
+function makeCode(){const a='ABCDEFGHJKMNPQRSTUVWXYZ';let s='';for(let i=0;i<4;i++)s+=a[rnd(a.length)];return s;}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=rnd(i+1);[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+let myId = ss.get('pd_pid'); if(!myId){myId=uid();ss.set('pd_pid',myId);}
+let toastT; function toast(msg){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t);}t.textContent=msg;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',2200);}
+
+/* ================= game presets ================= */
+const BASE = {deal:5, decks:1, jokers:false, discard:'top', allowDraw:true, allowFlip:false, allowTakeDiscard:true, allowGive:true,
+  dealerPlays:true, turns:false, hideHand:false, totals:false, kingsRules:false, poker:false, dealerBoard:false, euchre:false, oldMaid:false, bus:false};
+const PRESETS = {
+  custom:{name:'Free Play', icon:'🃏', cat:'other', blurb:'Your own rules', setup:{deal:5}, s:{}, rules:
+`Anything goes. The dealer sets how many cards are dealt and how the discard pile works in the Dealer panel.
+
+Players can draw, flip, play cards to the table, discard, pass cards to each other, and reveal their hand. Use it for any game not on the list.`},
+  holdem:{name:"Texas Hold'em", icon:'♠', cat:'casino', blurb:'2 hole cards + board', setup:{deal:2}, s:{deal:2, discard:'hidden', allowDraw:false, allowTakeDiscard:false, allowGive:false, hideHand:true, poker:true}, rules:
+`Each player gets 2 hole cards. Hold your hand down to peek.
+
+Dealer: deal 2, then use Flop → Turn → River (each burns a card face-down first).
+Players: Fold mucks your hand. At showdown, tap Reveal.
+Best 5-card hand from your 2 + the 5 on the board wins. Track chips/bets however you like (real chips, coins, drinks).`},
+  omaha:{name:'Omaha', icon:'♦', cat:'casino', blurb:'4 hole cards + board', setup:{deal:4}, s:{deal:4, discard:'hidden', allowDraw:false, allowTakeDiscard:false, allowGive:false, hideHand:true, poker:true}, rules:
+`Each player gets 4 hole cards. Hold your hand down to peek.
+
+Dealer: use Flop → Turn → River like Hold'em.
+Your best hand must use exactly 2 of your cards and exactly 3 from the board. Tap Reveal at showdown.`},
+  stud:{name:'5-Card Draw', icon:'♣', cat:'casino', blurb:'Swap cards, best hand wins', setup:{deal:5}, s:{deal:5, discard:'hidden', allowDraw:true, allowTakeDiscard:false, allowGive:false, hideHand:true}, rules:
+`Each player gets 5 cards. After the first betting round, select the cards you don't want, tap Discard, then Draw the same number.
+Second betting round, then Reveal. Best poker hand wins.`},
+  blackjack:{name:'Blackjack', icon:'21', cat:'casino', blurb:'Beat the dealer to 21', setup:{deal:2, after:['dealerUp','dealerDown']}, s:{deal:2, discard:'hidden', allowDraw:true, allowTakeDiscard:false, allowGive:false, dealerPlays:false, totals:true, dealerBoard:true}, rules:
+`Players get 2 cards and the dealer's hand (one up, one down) goes on the table automatically.
+Players: Draw = Hit. Tap Stand when done. Over 21 = Bust (drink?).
+Dealer flips the hole card (tap it), then hits with "Dealer up" until 17+. Closest to 21 without busting beats the dealer.`},
+  rummy:{name:'Rummy', icon:'🂡', cat:'classic', blurb:'Make sets & runs', setup:{deal:[[2,10],[4,7],[99,6]], after:['pile']}, s:{deal:7, discard:'top', allowDraw:true, allowTakeDiscard:true, allowGive:false, turns:true}, rules:
+`Dealer deals 10 each with 2 players, 7 with 3–4, 6 with 5+, and flips one to start the discard pile.
+On your turn: Draw from the deck or Take discard, then optionally Play a set (3+ of a rank) or run (3+ in a row, same suit) to the table, then Discard one card and tap End turn.
+First to get rid of all their cards wins the hand.`},
+  gin:{name:'Gin Rummy', icon:'G', cat:'classic', blurb:'2 players, 10 cards', setup:{deal:10, after:['pile']}, s:{deal:10, discard:'top', allowDraw:true, allowTakeDiscard:true, allowGive:false, turns:true}, rules:
+`Best with 2 players. Each gets 10 cards and one card starts the discard pile.
+On your turn Draw or Take discard, then Discard one and End turn.
+Knock when your unmatched cards add up to 10 or less – Reveal your hand. All cards matched in sets/runs = Gin!`},
+  crazy8:{name:'Crazy Eights', icon:'8', cat:'classic', blurb:'Match suit or rank', setup:{deal:[[3,7],[99,5]], after:['pile']}, s:{deal:7, discard:'top', allowDraw:true, allowTakeDiscard:false, allowGive:false, turns:true}, rules:
+`Everyone gets 7 cards (5 if 4+ players) and one card starts the pile.
+On your turn, Discard a card matching the top card's suit or rank. 8s are wild – call a suit. Can't play? Draw. Tap End turn.
+First to empty their hand wins.`},
+  gofish:{name:'Go Fish', icon:'🐟', cat:'classic', blurb:'Ask for ranks, make sets', setup:{deal:[[3,7],[99,5]]}, s:{deal:7, discard:'off', allowDraw:true, allowTakeDiscard:false, allowGive:true, turns:true}, rules:
+`Everyone gets 7 cards (5 if 4+ players). On your turn ask a player for a rank.
+If they have it they select the cards and tap Give → you. If not, "Go fish" – you Draw.
+Make a set of 4? Select them and Play to table. Most sets wins.`},
+  oldmaid:{name:'Old Maid', icon:'Q', cat:'classic', blurb:"Don't get stuck with the Queen", setup:{deal:'all'}, s:{deal:26, discard:'top', allowDraw:false, allowTakeDiscard:false, allowGive:true, turns:true, oldMaid:true}, rules:
+`One Queen is removed, so one Queen has no partner – the Old Maid. The whole deck is dealt.
+First, Discard any pairs you hold. On your turn, the player on your left picks one of your cards (tell them a position) and you Give it to them. They discard any pair it makes.
+Whoever is left holding the Old Maid loses.`},
+  hearts:{name:'Hearts', icon:'♥', cat:'classic', blurb:'Avoid hearts & the Q♠', setup:{deal:'all'}, s:{deal:13, discard:'hidden', allowDraw:false, allowTakeDiscard:false, allowGive:true, turns:true}, rules:
+`Best with 4 players – the whole deck is dealt (13 each).
+Pass 3 cards: select them and Give them to the player on your left.
+Holder of 2♣ leads. Play one card to the table on your turn and follow suit if you can. Highest card of the led suit takes the trick – dealer Clears the table.
+Each heart = 1 point, Q♠ = 13. Lowest score wins.`},
+  spades:{name:'Spades', icon:'♠', cat:'classic', blurb:'Bid tricks, spades trump', setup:{deal:'all'}, s:{deal:13, discard:'hidden', allowDraw:false, allowTakeDiscard:false, allowGive:false, turns:true}, rules:
+`4 players in partners across from each other – the whole deck is dealt (13 each).
+Everyone bids how many tricks they'll take. Play one card to the table on your turn and follow suit if you can; spades are trump.
+Highest card wins the trick – dealer Clears the table. Make your bid: 10 × bid. Miss it: −10 × bid.`},
+  euchre:{name:'Euchre', icon:'J', cat:'classic', blurb:'9–A deck, 5 cards', setup:{deal:5, after:['tableUp']}, s:{deal:5, discard:'hidden', allowDraw:false, allowTakeDiscard:false, allowGive:false, turns:true, euchre:true}, rules:
+`Uses only 9 through Ace (24 cards). 4 players in partners. Everyone gets 5 and one card is turned up on the table.
+Go around: order it up (dealer picks it up, discards one) or pass. Then pick trump. Jack of trump is highest, then the other Jack of the same color.
+Play one card each to the table per trick. Team that called needs 3 of 5 tricks.`},
+  president:{name:'President', icon:'👑', cat:'classic', blurb:'Shed cards, climb the ranks', setup:{deal:'all'}, s:{deal:13, discard:'hidden', allowDraw:false, allowTakeDiscard:false, allowGive:true, turns:true}, rules:
+`The whole deck is dealt. Low card (3 is low, 2 is high) starts.
+On your turn, Play a single, pair or triple that beats what's on the table, or End turn to pass. When everyone passes, dealer Clears the table and the last player leads.
+First out is President, last is the Scum – Scum Gives their 2 best cards to the President next round.`},
+  war:{name:'War / High Card', icon:'⚔', cat:'classic', blurb:'Highest card wins', setup:{deal:'all'}, s:{deal:26, discard:'top', allowDraw:false, allowFlip:false, allowTakeDiscard:false, allowGive:false}, rules:
+`The whole deck is dealt.
+Everyone selects their top card and Plays to the table at once. Highest card wins – loser drinks.
+Dealer clears the table to the discard pile between rounds. For quick High Card, use the Dealer panel to deal 1 each instead.`},
+  kings:{name:"King's Cup", icon:'🍺', cat:'party', blurb:'Flip a card, follow the rule', setup:{deal:0}, s:{deal:0, discard:'top', allowDraw:false, allowFlip:true, allowTakeDiscard:false, allowGive:false, turns:true, kingsRules:true}, rules:
+`Take turns tapping Flip. The card shows for everyone with its rule.
+A Waterfall · 2 You · 3 Me · 4 Floor · 5 Guys · 6 Chicks · 7 Heaven · 8 Mate · 9 Rhyme · 10 Categories · J Make a Rule · Q Questions · K King's Cup
+Whoever flips the 4th King drinks the cup.`},
+  ridebus:{name:'Ride the Bus', icon:'🚌', cat:'party', blurb:'Guess 4 cards, pyramid, then the bus', setup:{deal:0}, s:{deal:0, discard:'top', allowDraw:false, allowFlip:false, allowTakeDiscard:false, allowGive:false, dealerPlays:true, bus:true}, rules:
+`Part 1 – The guesses (4 rounds). One player at a time, the dealer asks the question, then taps that player's name to deal them a card face-up. The dealer sees every card, so no lying.
+1) Red or black?  2) Higher or lower than your 1st card?  3) Inside or outside your first two?  4) Which suit?
+Wrong guess = drink. Correct = give a drink.
+
+Part 2 – The pyramid. 15 cards go face-down on the table in 5 levels: 5 cards, then 4, 3, 2, 1. The dealer taps the cards to flip them one at a time. The first player to match the flipped card's rank taps Match and discards that card (level 1 = 1 drink to hand out, level 2 = 2, …).
+
+Part 3 – Ride the bus. When all 15 are flipped, whoever holds the most cards rides the bus. The dealer asks red or black and taps their name to deal. Right? On to higher or lower, inside or outside, then suit. Any wrong answer starts the bus over from red or black.`},
+};
+const GAME_CATS = [['casino','Poker & casino'],['classic','Classic card games'],['party','Party & drinking'],['other','Anything else']];
+// how many cards each player gets for a preset, given the number of players being dealt in
+// ('all' splits the deck evenly; leftovers go out one by one until it's empty)
+function dealFor(key,n,deckCount){
+  const d=(PRESETS[key]||PRESETS.custom).setup.deal;
+  if(d==='all') return n?Math.floor(deckCount/n):0;
+  if(Array.isArray(d)){ for(const [max,c] of d) if(n<=max) return c; return d[d.length-1][1]; }
+  return d|0;
+}
+const KINGS = {A:['Waterfall','Everyone drinks. You can stop when the person on your right stops.'],2:['You','Pick someone to drink.'],3:['Me','You drink.'],
+  4:['Floor','Last person to touch the floor drinks.'],5:['Guys','All guys drink.'],6:['Chicks','All girls drink.'],7:['Heaven','Last person to point up drinks.'],
+  8:['Mate','Pick a drinking buddy – they drink when you drink.'],9:['Rhyme','Say a word; go around rhyming. First to fail drinks.'],10:['Categories','Pick a category; go around naming things. First to fail drinks.'],
+  J:['Make a Rule','Make a rule everyone must follow.'],Q:['Questions','Ask someone a question; they must answer with a question. First to fail drinks.'],
+  K:["King's Cup",'Pour some of your drink into the cup. 4th King drinks it all.'],JK:['Joker','Wild card – make up anything you want.']};
+const DISCARD_LABEL = {off:'No discard pile', top:'Top card visible', all:'Whole pile visible', hidden:'Face-down (hidden)'};
+
+/* ================= transport ================= */
+// Host side: receives {pid,...} from clients; sends state to a pid.
+function hostTransport(code, h){
+  if(LOCAL){
+    const bc = new BroadcastChannel(PREFIX+code);
+    bc.onmessage = e => { const m=e.data; if(m && m.to==='host') h.msg(m.payload.pid, m.payload); };
+    setTimeout(()=>h.ready(),0);
+    return {send(pid,p){bc.postMessage({to:pid,payload:p});}, close(){bc.close();}};
+  }
+  if(!window.Peer){ setTimeout(()=>h.fail('Could not load the connection library. Check your internet.'),0); return {send(){},close(){}}; }
+  const peer = new Peer(PREFIX+code,{debug:0});
+  const conns = new Map(); let opened=false;
+  peer.on('open',()=>{opened=true;h.ready();});
+  peer.on('error',err=>{
+    if(err.type==='unavailable-id') h.fail('taken');
+    else if(!opened) h.fail('Connection error: '+err.type);
+    else console.warn('peer error',err);
+  });
+  peer.on('disconnected',()=>{ setTimeout(()=>{try{if(!peer.destroyed)peer.reconnect();}catch(e){}},1500); });
+  peer.on('connection',conn=>{
+    conn.on('data',d=>{
+      if(!d || typeof d.pid!=='string') return;
+      const old=conns.get(d.pid);
+      if(old!==conn){ if(old) try{old.close();}catch(e){} conns.set(d.pid,conn); conn._pid=d.pid; }
+      h.msg(d.pid,d);
+    });
+    conn.on('close',()=>{ if(conn._pid && conns.get(conn._pid)===conn){conns.delete(conn._pid);h.leave(conn._pid);} });
+    conn.on('error',()=>{});
+  });
+  return {send(pid,p){const c=conns.get(pid); if(c && c.open){try{c.send(p);}catch(e){}}}, close(){try{peer.destroy();}catch(e){}}};
+}
+// Client side
+function clientTransport(code, h){
+  let closed=false;
+  if(LOCAL){
+    const bc = new BroadcastChannel(PREFIX+code);
+    bc.onmessage = e => { const m=e.data; if(m && m.to===myId) h.msg(m.payload); };
+    setTimeout(()=>h.status('open'),0);
+    return {send(p){bc.postMessage({to:'host',payload:p});}, close(){closed=true;bc.close();}};
+  }
+  if(!window.Peer){ setTimeout(()=>h.status('nolib'),0); return {send(){},close(){}}; }
+  let peer=null, conn=null, timer=null;
+  function start(){
+    if(closed) return;
+    peer = new Peer({debug:0});
+    peer.on('open',connect);
+    peer.on('error',err=>{
+      if(err.type==='peer-unavailable'){ h.status('nohost'); retry(); }
+      else if(['network','server-error','socket-error','socket-closed'].includes(err.type)){ h.status('closed'); restart(); }
+    });
+  }
+  function connect(){
+    if(closed) return;
+    conn = peer.connect(PREFIX+code,{reliable:true});
+    conn.on('open',()=>h.status('open'));
+    conn.on('data',d=>h.msg(d));
+    conn.on('close',()=>{ if(!closed){h.status('closed');retry();} });
+    conn.on('error',()=>{});
+  }
+  function retry(){ clearTimeout(timer); timer=setTimeout(()=>{ if(closed) return; if(peer && !peer.destroyed && !peer.disconnected) connect(); else restart(); },2500); }
+  function restart(){ clearTimeout(timer); timer=setTimeout(()=>{ try{peer&&peer.destroy();}catch(e){} start(); },2500); }
+  start();
+  return {send(p){ if(conn && conn.open){try{conn.send(p);}catch(e){}} }, close(){closed=true;clearTimeout(timer);try{peer&&peer.destroy();}catch(e){}}};
+}
+
+/* ================= HOST: authoritative game ================= */
+let S=null, HT=null;
+function hostSave(){ try{ ls.set('pd_host', JSON.stringify(S)); }catch(e){} }
+function newHostState(code,name){
+  const st={code, hostId:myId, preset:'custom', settings:{...BASE}, deck:[], discard:[], board:[], players:[], turn:null, log:[], kings:0, lastFlip:null};
+  st.players.push(mkPlayer(myId,name,true));
+  st.deck = buildDeck(st.settings); st.full=st.deck.length;
+  return st;
+}
+function mkPlayer(id,name,isHost){return {id,name:String(name).slice(0,18)||'Player',hand:[],table:[],revealed:false,status:'',online:true,isHost:!!isHost};}
+function buildDeck(s){
+  const d=[]; const n=Math.max(1,Math.min(6,s.decks|0));
+  const ranks=s.euchre?RANKS.filter(r=>['A','9','10','J','Q','K'].includes(r)):RANKS;
+  for(let k=0;k<n;k++){ for(const su of Object.keys(SUITS)) for(const r of ranks) if(!(s.oldMaid&&k===0&&r==='Q'&&su==='C')) d.push({id:k+r+su,r,s:su});
+    if(s.jokers){d.push({id:k+'JKR',r:'JK',s:'R'});d.push({id:k+'JKB',r:'JK',s:'B'});} }
+  return shuffle(d);
+}
+const P = id => S.players.find(p=>p.id===id);
+/* ---- Ride the Bus ---- */
+const BUS_Q = ['Red or black?','Higher or lower?','Inside or outside?','Which suit?'];
+const BUS_LEVELS = [5,4,3,2,1];
+const SUIT_NAME = {S:'Spades',H:'Hearts',D:'Diamonds',C:'Clubs'};
+function rval(c){ return {A:14,J:11,Q:12,K:13,JK:0}[c.r]??+c.r; }
+// the right answer for card #i in a guess sequence
+function busAnswer(cards,i){
+  const c=cards[i]; if(!c) return '';
+  if(i===0) return (c.s==='H'||c.s==='D')?'Red':'Black';
+  if(i===1){ const a=rval(cards[0]),v=rval(c); return v>a?'Higher':v<a?'Lower':'Same – nobody wins'; }
+  if(i===2){ const lo=Math.min(rval(cards[0]),rval(cards[1])),hi=Math.max(rval(cards[0]),rval(cards[1])),v=rval(c); return v>lo&&v<hi?'Inside':v<lo||v>hi?'Outside':'On the post'; }
+  return SUIT_NAME[c.s]||'';
+}
+function busLevel(i){ let n=0; for(let l=0;l<BUS_LEVELS.length;l++){ n+=BUS_LEVELS[l]; if(i<n) return l+1; } return 0; }
+function busDraw(){ if(!S.deck.length && S.discard.length){ S.deck.push(...S.discard); S.discard=[]; shuffle(S.deck); log('Discard shuffled back into the deck'); } return draw(); }
+function busHandle(m){
+  const B=S.bus; if(!B) return false;
+  switch(m.t){
+    case 'busdeal': { // part 1: deal one guess card to a player
+      const p=P(m.to); if(B.phase!=='guess'||!p) return true;
+      if(p.hand.length>=4) return note(myId,`${p.name} already has 4 cards`),true;
+      const c=busDraw(); if(!c) return note(myId,'Deck is empty'),true;
+      p.hand.push(c); S.started=true;
+      log(`${p.name} – ${BUS_Q[p.hand.length-1]} ${cname(c)} (${busAnswer(p.hand,p.hand.length-1)})`); break;
+    }
+    case 'buspyramid': {
+      if(B.phase!=='guess') return true;
+      const cs=[]; for(let i=0;i<15;i++){ const c=busDraw(); if(!c) break; cs.push(c); }
+      if(cs.length<15){ S.deck.push(...cs); return note(myId,'Not enough cards left for the pyramid'),true; }
+      S.board=cs.map(c=>({c,up:false,by:''})); S.bus={phase:'pyramid',cur:null,claimed:false}; S.started=true;
+      log('The pyramid is down – dealer flips the cards one by one'); break;
+    }
+    case 'busflip': {
+      const b=S.board[m.i]; if(B.phase!=='pyramid'||!b||b.up) return true;
+      b.up=true; B.cur=m.i; B.claimed=false;
+      log(`Level ${busLevel(m.i)}: ${cname(b.c)} flipped`);
+      if(S.board.every(x=>x.up)) log('All 15 flipped – dealer picks who rides the bus');
+      break;
+    }
+    case 'busride': { // part 3: collect everything, the rider starts fresh
+      const p=P(m.to); if(B.phase!=='pyramid'||!p) return true;
+      S.players.forEach(x=>{ S.deck.push(...x.hand); x.hand=[]; x.revealed=false; });
+      S.deck.push(...S.board.map(b=>b.c),...S.discard); S.board=[]; S.discard=[]; shuffle(S.deck);
+      S.bus={phase:'ride',rider:p.id,judged:true,wrong:false,tries:1};
+      log(`🚌 ${p.name} is riding the bus!`); break;
+    }
+    case 'busridedeal': {
+      const p=P(B.rider); if(B.phase!=='ride'||!p||!B.judged) return true;
+      if(B.wrong){ S.discard.push(...p.hand); p.hand=[]; B.wrong=false; }
+      const c=busDraw(); if(!c) return note(myId,'Deck is empty'),true;
+      p.hand.push(c); B.judged=false;
+      log(`Bus – ${BUS_Q[p.hand.length-1]} ${cname(c)}`); break;
+    }
+    case 'busjudge': {
+      const p=P(B.rider); if(B.phase!=='ride'||!p||B.judged) return true;
+      B.judged=true;
+      if(m.ok){ if(p.hand.length>=4){ B.phase='done'; log(`🎉 ${p.name} got off the bus after ${B.tries} ${B.tries===1?'try':'tries'}!`); } else log(`${p.name} got it – next: ${BUS_Q[p.hand.length]}`); }
+      else { B.wrong=true; B.tries++; log(`${p.name} got it wrong – back to red or black`); }
+      break;
+    }
+    case 'busagain': resetRound(); log('New game of Ride the Bus'); break;
+    default: return false;
+  }
+  commit(); return true;
+}
+function log(t){ S.log.push(t); if(S.log.length>40) S.log.splice(0,S.log.length-40); }
+function cname(c){ return c.r==='JK'?'Joker':c.r+SUITS[c.s]; }
+function takeFromHand(p,ids){ const set=new Set(ids||[]); const out=[]; p.hand=p.hand.filter(c=>{ if(set.has(c.id)){out.push(c);return false;} return true;}); return out; }
+function draw(){ return S.deck.pop()||null; }
+function online(){ return S.players.filter(p=>p.online); }
+function nextTurn(fromId){
+  const ps=S.players.filter(p=>p.online && (S.settings.dealerPlays||!p.isHost)); if(!ps.length){S.turn=null;return;}
+  const i=ps.findIndex(p=>p.id===(fromId??S.turn)); S.turn=ps[(i+1)%ps.length].id;
+}
+function recipients(){
+  const ps=S.players.filter(p=>p.online && (S.settings.dealerPlays||!p.isHost));
+  // dealing starts left of dealer: rotate so host is last
+  const hi=ps.findIndex(p=>p.isHost); if(hi<0) return ps;
+  return ps.slice(hi+1).concat(ps.slice(0,hi+1));
+}
+
+function hostHandle(pid,m){
+  if(!S || !m || typeof m.t!=='string') return;
+  let p=P(pid); const isDealer = pid===S.hostId; const st=S.settings;
+  if(m.t==='hello'){
+    const name=String(m.name||'Player').trim().slice(0,18)||'Player';
+    if(!p){ // reclaim a seat by name if that player dropped
+      const seat=S.players.find(x=>!x.online && !x.isHost && x.name.toLowerCase()===name.toLowerCase());
+      if(seat){ seat.id=pid; p=seat; if(S.turn===pid) {} }
+    }
+    if(!p){ if(S.players.length>=20){ HT&&HT.send(pid,{t:'full'}); return; } p=mkPlayer(pid,name,false); S.players.push(p); log(`${p.name} joined`); }
+    else if(!p.online) log(`${p.name} is back`);
+    p.online=true; p.name=name;
+    return commit();
+  }
+  if(!p){ if(pid!==myId && HT) HT.send(pid,{t:'who'}); return; }
+  if(!p.online && m.t!=='bye'){ p.online=true; log(`${p.name} is back`); }
+  if(m.t==='bye'){ if(!p.isHost){p.online=false;log(`${p.name} left`);} return commit(); }
+  const myTurn = !st.turns || S.turn===pid || isDealer;
+  switch(m.t){
+    case 'draw': {
+      if(!st.allowDraw && !isDealer) return;
+      const n=Math.max(1,Math.min(10,m.n|0||1)); let got=0;
+      for(let i=0;i<n;i++){const c=draw(); if(!c)break; p.hand.push(c); got++;}
+      if(!got) return note(pid,'Deck is empty');
+      log(`${p.name} drew ${got}`); break;
+    }
+    case 'flip': {
+      if(!st.allowFlip && !isDealer) return;
+      if(st.turns && S.turn!==pid && !isDealer) return note(pid,"It's not your turn");
+      const c=draw(); if(!c) return note(pid,'Deck is empty');
+      S.discard.push(c);
+      if(st.kingsRules && c.r==='K') S.kings++;
+      S.lastFlip={card:c,by:p.name,kings:S.kings};
+      log(`${p.name} flipped ${cname(c)}`+(st.kingsRules&&c.r==='K'?` (King #${S.kings})`:''));
+      if(st.turns && st.kingsRules) nextTurn(pid);
+      break;
+    }
+    case 'take': {
+      if(!st.allowTakeDiscard && !isDealer) return;
+      if(st.discard==='off' || st.discard==='hidden') { if(!isDealer) return; }
+      const c=S.discard.pop(); if(!c) return note(pid,'Discard pile is empty');
+      p.hand.push(c); log(`${p.name} took ${cname(c)} from the discard`); break;
+    }
+    case 'play': {
+      const cs=takeFromHand(p,m.ids); if(!cs.length) return;
+      cs.forEach(c=>S.board.push({c,up:m.down?false:true,by:p.name}));
+      log(`${p.name} played ${m.down?cs.length+' face-down':cs.map(cname).join(' ')}`); break;
+    }
+    case 'busmatch': {
+      const B=S.bus, b=B&&B.phase==='pyramid'&&B.cur!=null?S.board[B.cur]:null; if(!b) return;
+      if(B.claimed) return note(pid,`Too slow – ${B.claimed} already matched it`);
+      const c=p.hand.find(x=>x.id===m.id); if(!c || c.r!==b.c.r) return note(pid,'That card doesn’t match');
+      takeFromHand(p,[c.id]); S.discard.push(c); B.claimed=p.name; b.by=p.name;
+      log(`${p.name} matched ${cname(c)} – hand out ${busLevel(B.cur)} drink${busLevel(B.cur)>1?'s':''}`); break;
+    }
+    case 'discard': {
+      if(st.discard==='off' && !isDealer) return note(pid,'No discard pile in this game');
+      const cs=takeFromHand(p,m.ids); if(!cs.length) return;
+      S.discard.push(...cs);
+      log(`${p.name} discarded ${st.discard==='hidden'?cs.length+' card'+(cs.length>1?'s':''):cs.map(cname).join(' ')}`); break;
+    }
+    case 'give': {
+      if(!st.allowGive && !isDealer) return;
+      const to=P(m.to); if(!to||to===p) return;
+      const cs=takeFromHand(p,m.ids); if(!cs.length) return;
+      to.hand.push(...cs); log(`${p.name} gave ${cs.length} card${cs.length>1?'s':''} to ${to.name}`);
+      HT&&to.id!==myId&&HT.send(to.id,{t:'note',text:`${p.name} gave you ${cs.length} card${cs.length>1?'s':''}`});
+      if(to.id===myId) toast(`${p.name} gave you ${cs.length} card${cs.length>1?'s':''}`);
+      break;
+    }
+    case 'reveal': p.revealed=!!m.on; log(`${p.name} ${p.revealed?'revealed':'hid'} their hand`); break;
+    case 'status': p.status=String(m.v||'').slice(0,12); if(p.status) log(`${p.name}: ${p.status}`); break;
+    case 'fold': {
+      const cs=p.hand.splice(0); if(st.discard!=='off') S.discard.push(...cs); else S.deck.unshift(...cs);
+      p.revealed=false; p.status='Fold'; log(`${p.name} folded`); break;
+    }
+    case 'sort': {
+      const ro={A:14,K:13,Q:12,J:11,JK:15}; const so={S:0,H:1,C:2,D:3,R:4,B:5};
+      const val=c=>ro[c.r]||+c.r;
+      if(m.by==='suit') p.hand.sort((a,b)=>so[a.s]-so[b.s]||val(a)-val(b)); else p.hand.sort((a,b)=>val(a)-val(b)||so[a.s]-so[b.s]);
+      break;
+    }
+    case 'endturn': if(st.turns && (S.turn===pid||isDealer)){ nextTurn(S.turn); const n=P(S.turn); log(`${n?n.name:'—'}'s turn`);} break;
+    default: if(isDealer) return dealerHandle(m); return;
+  }
+  commit();
+}
+function dealerHandle(m){
+  const st=S.settings;
+  if(busHandle(m)) return;
+  switch(m.t){
+    case 'preset': {
+      const pr=PRESETS[m.key]; if(!pr) return;
+      S.preset=m.key; S.settings={...BASE, decks:st.decks, jokers:m.key==='custom'?st.jokers:false, ...pr.s};
+      log(`Game: ${pr.name}`); resetRound(); break;
+    }
+    case 'set': {
+      if(!(m.k in BASE)) return;
+      const old=st[m.k]; st[m.k]=m.v;
+      if((m.k==='decks'||m.k==='jokers') && old!==m.v){ resetRound(); log('Deck changed – new round'); }
+      if(m.k==='turns' && m.v && !S.turn) nextTurn(null);
+      if(m.k==='hideHand'){} break;
+    }
+    case 'newround': resetRound(); log('New round – all cards collected and shuffled'); break;
+    case 'setup': {
+      // one-tap deal for the selected game: deal the right number, then do the game's opening moves
+      const pr=PRESETS[S.preset]||PRESETS.custom; const rs=recipients();
+      if(S.started || S.deck.length!==S.full || S.board.length) resetRound();
+      const all=pr.setup.deal==='all' && m.n==null;
+      const n=m.n!=null ? Math.max(0,Math.min(52,m.n|0)) : dealFor(S.preset,rs.length,S.deck.length);
+      if(rs.length && (n||all)){
+        if(all){ let i=0; while(S.deck.length) rs[i++%rs.length].hand.push(draw()); }
+        else for(let i=0;i<n;i++) for(const p of rs){ const c=draw(); if(c) p.hand.push(c); }
+        log(all?`Dealer dealt the whole deck`:`Dealer dealt ${n} to everyone`);
+      }
+      for(const step of pr.setup.after||[]){
+        const c=draw(); if(!c) break;
+        if(step==='pile'){ S.discard.push(c); S.lastFlip={card:c,by:'Dealer',kings:S.kings}; log(`${cname(c)} starts the pile`); }
+        else S.board.push({c,up:step!=='dealerDown',by:st.dealerBoard?'Dealer':''});
+      }
+      if(st.turns) nextTurn(S.hostId);
+      S.started=true; log(`${pr.name} – let's play!`); break;
+    }
+    case 'deal': {
+      S.started=true; const n=Math.max(1,Math.min(52,m.n|0)); const rs=recipients(); if(!rs.length) return;
+      let out=false;
+      for(let i=0;i<n && !out;i++) for(const p of rs){ const c=draw(); if(!c){out=true;break;} p.hand.push(c); }
+      log(`Dealer dealt ${n} to everyone`+(out?' (deck ran out)':'')); break;
+    }
+    case 'dealone': {
+      const p=P(m.to); if(!p) return; const n=Math.max(1,Math.min(52,m.n|0||1)); let got=0;
+      for(let i=0;i<n;i++){const c=draw(); if(!c)break; p.hand.push(c); got++;}
+      log(`Dealer dealt ${got} to ${p.name}`); break;
+    }
+    case 'boardup': case 'boarddown': { const c=draw(); if(!c) return note(myId,'Deck is empty'); S.board.push({c,up:m.t==='boardup',by:st.dealerBoard?'Dealer':''}); log(`Dealer put ${m.t==='boardup'?cname(c):'a card face-down'} on the table`); break; }
+    case 'flop': case 'turn': case 'river': {
+      const burn=draw(); if(burn) S.discard.push(burn);
+      const n=m.t==='flop'?3:1; for(let i=0;i<n;i++){const c=draw(); if(c) S.board.push({c,up:true,by:''});}
+      log(`Dealer: the ${m.t}`); break;
+    }
+    case 'flipboard': S.board.forEach(b=>b.up=true); log('Dealer flipped the table cards'); break;
+    case 'flipone': { const b=S.board[m.i]; if(b){b.up=!b.up;} break; }
+    case 'flippile': { const c=draw(); if(!c) return; S.discard.push(c); S.lastFlip={card:c,by:'Dealer',kings:S.kings}; if(st.kingsRules&&c.r==='K')S.kings++; log(`Dealer flipped ${cname(c)} to the pile`); break; }
+    case 'clearboard': { if(st.discard==='off') S.deck.unshift(...S.board.map(b=>b.c)); else S.discard.push(...S.board.map(b=>b.c)); S.board=[]; log('Table cleared'); break; }
+    case 'reshuffle': { S.deck.push(...S.discard); S.discard=[]; shuffle(S.deck); S.lastFlip=null; log('Discard shuffled back into the deck'); break; }
+    case 'nextturn': nextTurn(S.turn); { const n=P(S.turn); log(`${n?n.name:'—'}'s turn`);} break;
+    case 'setturn': if(P(m.to)) S.turn=m.to; break;
+    case 'clearstatus': S.players.forEach(p=>{p.status='';p.revealed=false;}); break;
+    case 'kick': { const p=P(m.to); if(!p||p.isHost) return; S.discard.push(...p.hand,...p.table); S.players=S.players.filter(x=>x!==p); HT&&HT.send(p.id,{t:'kicked'}); if(S.turn===p.id) nextTurn(p.id); log(`${p.name} was removed`); break; }
+    case 'cleanup': { const gone=S.players.filter(p=>!p.online&&!p.isHost); gone.forEach(p=>S.deck.unshift(...p.hand)); S.players=S.players.filter(p=>p.online||p.isHost); shuffle(S.deck); break; }
+    default: return;
+  }
+  commit();
+}
+function resetRound(){
+  S.deck=buildDeck(S.settings); S.discard=[]; S.board=[]; S.kings=0; S.lastFlip=null; S.started=false; S.full=S.deck.length;
+  S.players.forEach(p=>{p.hand=[];p.table=[];p.revealed=false;p.status='';});
+  S.turn=null; if(S.settings.turns) nextTurn(null);
+  S.bus=S.settings.bus?{phase:'guess'}:null;
+}
+function note(pid,text){ if(pid===myId) toast(text); else HT&&HT.send(pid,{t:'note',text}); }
+function viewFor(pid){
+  const st=S.settings, me=P(pid);
+  const dm=st.discard;
+  return {t:'state', code:S.code, you:pid, hostId:S.hostId, preset:S.preset, presetName:PRESETS[S.preset].name, rules:PRESETS[S.preset].rules, settings:st,
+    deck:S.deck.length, discardCount:S.discard.length,
+    discardTop: (dm==='top'||dm==='all') ? (S.discard[S.discard.length-1]||null) : null,
+    discardAll: dm==='all' ? S.discard.slice(-60) : null,
+    board:S.board.map((b,i)=>({c:b.up?b.c:null,up:b.up,by:b.by,i})),
+    bus:S.bus||null,
+    players:S.players.map(p=>({id:p.id,name:p.name,count:p.hand.length,hand:((p.revealed||(S.bus&&(pid===S.hostId||S.bus.phase!=='pyramid')))&&p.id!==pid)?p.hand:null,revealed:p.revealed,status:p.status,online:p.online,isHost:p.isHost})),
+    fresh: !S.started && S.deck.length===(S.full??S.deck.length) && !S.board.length,
+    hand: me?me.hand:[], turn:S.turn, log:S.log.slice(-12), lastFlip:S.lastFlip, kings:S.kings};
+}
+function commit(){
+  hostSave();
+  for(const p of S.players){ if(p.id===myId) continue; if(p.online) HT&&HT.send(p.id,viewFor(p.id)); }
+  onState(viewFor(myId));
+}
+
+/* ================= CLIENT UI ================= */
+let V=null;               // latest view
+let role=null;            // 'host' | 'player'
+let CT=null;              // client transport
+let conn='open';
+let sel=new Set();
+let hideHand=null, peeking=false;
+let sheetOpen=null;       // 'dealer'|'rules'|'give'|'more'|'pile'|null
+let dealN=null, oneN=1, oneTo=null, setupN=null;
+let lastCount=0;
+
+function send(msg){ if(role==='host') hostHandle(myId,msg); else if(CT) CT.send({...msg,pid:myId}); }
+
+function onState(v){
+  const firstState = !V || V.preset!==v.preset;
+  V=v;
+  if(hideHand===null || firstState) hideHand=!!v.settings.hideHand;
+  if(dealN===null || firstState){ dealN=Math.max(1,v.settings.deal||1); setupN=null; }
+  const ids=new Set(v.hand.map(c=>c.id)); for(const id of [...sel]) if(!ids.has(id)) sel.delete(id);
+  if(v.hand.length>lastCount && lastCount>=0 && navigator.vibrate) { try{navigator.vibrate(25);}catch(e){} }
+  lastCount=v.hand.length;
+  renderGame(); if(sheetOpen) renderSheet();
+}
+
+/* ---- card rendering ---- */
+function cardHTML(c,opts={}){
+  const size=opts.size?(' '+opts.size):'';
+  if(!c) return `<div class="card back${size}"${opts.attr||''}></div>`;
+  if(c.r==='JK'){ return `<div class="card joker${c.s==='R'?' red':''}${size}${opts.sel?' sel':''}" ${opts.attr||''}><div class="ix">★<small>J</small></div><div class="pip">🃏</div></div>`; }
+  const red=(c.s==='H'||c.s==='D')?' red':'';
+  const face=['J','Q','K'].includes(c.r);
+  return `<div class="card${red}${size}${opts.sel?' sel':''}"${opts.attr||''}><div class="ix">${c.r}<small>${SUITS[c.s]}</small></div><div class="pip${face?' face':''}">${face?c.r+'<span style="font-size:.6em">'+SUITS[c.s]+'</span>':SUITS[c.s]}</div><div class="ix b">${c.r}<small>${SUITS[c.s]}</small></div></div>`;
+}
+function bjTotal(cards){ let t=0,a=0; for(const c of cards){ if(!c) continue; if(c.r==='A'){t+=11;a++;} else if(['J','Q','K','10'].includes(c.r)) t+=10; else if(c.r==='JK'){} else t+=+c.r; } while(t>21&&a){t-=10;a--;} return t; }
+
+/* ---- home ---- */
+function renderHome(err=''){
+  const saved = (()=>{ try{ const s=JSON.parse(ls.get('pd_host')||'null'); return s&&s.hostId?s:null; }catch(e){return null;} })();
+  const joinCode=(qs.get('join')||'').toUpperCase().slice(0,4);
+  const name=ls.get('pd_name')||'';
+  document.getElementById('app').innerHTML = `
+  <div class="home">
+    <div class="logo"><div class="fan"><i></i><i>♥</i><i></i></div><div><h1>Pocket Deck</h1><p>One table. Every phone holds a hand.</p></div></div>
+    <div class="panel">
+      <label class="f">Your name<input class="t" id="nm" maxlength="18" placeholder="e.g. Colson" value="${esc(name)}" autocomplete="nickname"></label>
+    </div>
+    <div class="panel">
+      <h2>Join a table</h2>
+      <label class="f">Table code<input class="t code" id="cd" maxlength="4" placeholder="ABCD" value="${esc(joinCode)}" autocapitalize="characters" autocomplete="off"></label>
+      <button class="btn" id="joinBtn">Join</button>
+    </div>
+    <div class="panel">
+      <h2>Host a table (you're the dealer)</h2>
+      <button class="btn alt" id="hostBtn">Create new table</button>
+      ${saved?`<button class="btn alt" id="resumeBtn">Resume table ${esc(saved.code)}</button>`:''}
+    </div>
+    <div class="err" id="err">${esc(err)}</div>
+    <p class="small">Everyone opens this page on their own phone. The host's phone runs the game, so keep it open with the screen on.</p>
+  </div>`;
+  const nm=document.getElementById('nm'), cd=document.getElementById('cd');
+  const needName=()=>{ const v=nm.value.trim(); if(!v){document.getElementById('err').textContent='Enter your name first';nm.focus();return null;} ls.set('pd_name',v); return v; };
+  document.getElementById('joinBtn').onclick=()=>{ const n=needName(); if(!n) return; const c=cd.value.trim().toUpperCase(); if(!/^[A-Z]{4}$/.test(c)){document.getElementById('err').textContent='Enter the 4-letter code';return;} startPlayer(c,n); };
+  cd.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('joinBtn').click();});
+  document.getElementById('hostBtn').onclick=()=>{ const n=needName(); if(!n) return; startHost(null,n); };
+  const rb=document.getElementById('resumeBtn'); if(rb) rb.onclick=()=>{ const n=needName(); if(!n) return; startHost(saved,n); };
+}
+
+function startHost(saved,name,tries=0){
+  role='host';
+  if(saved){ S=saved; S.hostId=myId; const me=S.players.find(p=>p.isHost); if(me){me.id=myId;me.name=name;me.online=true;} S.players.forEach(p=>{if(!p.isHost)p.online=false;}); }
+  else S=newHostState(makeCode(),name);
+  ss.set('pd_session',JSON.stringify({role:'host'}));
+  document.getElementById('app').innerHTML=`<div class="home"><div class="panel"><h2>Opening table…</h2><p class="small">Setting up the connection.</p></div></div>`;
+  HT=hostTransport(S.code,{
+    ready(){ history.replaceState(null,'',location.pathname+(LOCAL?'?local':'')); commit(); },
+    msg(pid,m){ hostHandle(pid,m); },
+    leave(pid){ const p=P(pid); if(p && !p.isHost){ p.online=false; log(`${p.name} disconnected`); commit(); } },
+    fail(why){
+      HT&&HT.close();
+      if(why==='taken'){
+        if(saved){ if(tries<8){ setTimeout(()=>startHost(saved,name,tries+1),3000); return; } renderHome(`Table ${S.code} is still open on another device.`); return; }
+        if(tries<4) return startHost(null,name,tries+1);
+      }
+      renderHome(why==='taken'?'Could not get a table code. Try again.':why);
+    }
+  });
+}
+function startPlayer(code,name){
+  role='player';
+  ss.set('pd_session',JSON.stringify({role:'player',code}));
+  document.getElementById('app').innerHTML=`<div class="home"><div class="panel"><h2>Joining ${esc(code)}…</h2><p class="small" id="jst">Looking for the table.</p><button class="btn alt" id="cancel">Cancel</button></div></div>`;
+  document.getElementById('cancel').onclick=leave;
+  CT=clientTransport(code,{
+    status(s){
+      conn=s;
+      if(s==='open') CT.send({t:'hello',pid:myId,name});
+      if(!V){ const el=document.getElementById('jst'); if(el) el.textContent = s==='nohost'?`No table ${code} found yet. Check the code – still trying…`: s==='nolib'?'Could not load the connection library. Check your internet.':s==='open'?'Connected – waiting for the dealer…':'Connecting…'; }
+      else renderGame();
+    },
+    msg(m){
+      if(!m) return;
+      if(m.t==='state') onState(m);
+      else if(m.t==='note') toast(m.text);
+      else if(m.t==='who') CT.send({t:'hello',pid:myId,name});
+      else if(m.t==='kicked'){ leave(); renderHome('The dealer removed you from the table.'); }
+      else if(m.t==='full'){ leave(); renderHome('That table is full.'); }
+    }
+  });
+}
+function leave(){
+  if(role==='player' && CT){ CT.send({t:'bye',pid:myId}); setTimeout(()=>CT&&CT.close(),150); }
+  if(role==='host' && HT){ HT.close(); }
+  CT=null; HT=null; V=null; role=null; sel.clear(); hideHand=null; dealN=null; sheetOpen=null; lastCount=0;
+  ss.del('pd_session'); closeSheet(); renderHome();
+}
+
+/* ---- game screen ---- */
+function dealtInCount(){ const st=V.settings; return V.players.filter(p=>p.online&&(st.dealerPlays||p.id!==V.hostId)).length; }
+function setupPlan(){
+  const pr=PRESETS[V.preset]||PRESETS.custom, n=dealtInCount();
+  const all=pr.setup.deal==='all' && setupN==null;
+  const each=setupN!=null?setupN:dealFor(V.preset,n,V.deck);
+  const extra={pile:'flip 1 to start the pile',dealerUp:'dealer\u2019s hand to the table',tableUp:'turn 1 up on the table'};
+  const parts=[all?'Deal the whole deck':each?`Deal ${each} each`:'No cards dealt – just start'];
+  for(const a of pr.setup.after||[]) if(extra[a]) parts.push(extra[a]);
+  return {pr,n,each,all,text:parts.join(' · ')};
+}
+function renderGame(){
+  if(!V) return;
+  const st=V.settings, me=V.players.find(p=>p.id===V.you)||{};
+  const isDealer=V.you===V.hostId;
+  const turnP=st.turns&&V.turn?V.players.find(p=>p.id===V.turn):null;
+  const myTurn=!st.turns||V.turn===V.you;
+  const n=sel.size;
+
+  // last flipped (kings cup etc.)
+  let flip='';
+  if(V.lastFlip && V.discardTop && V.lastFlip.card.id===V.discardTop.id){
+    const c=V.lastFlip.card; const k=st.kingsRules?KINGS[c.r]:null;
+    flip=`<div class="flipbox">${cardHTML(c,{size:'lg'})}<div class="rule">${k?`<h3>${esc(k[0])}</h3><p>${esc(k[1])}</p>`:`<h3>${esc(cname(c))}</h3>`}<div class="small">Flipped by ${esc(V.lastFlip.by)}${st.kingsRules?` · Kings: ${V.kings}/4`:''}</div></div></div>`;
+  }
+
+  // board
+  const boardCards=V.board;
+  let boardTot='';
+  if(st.totals && boardCards.length){ const up=boardCards.filter(b=>b.up).map(b=>b.c); if(up.length) boardTot=`<span>${st.dealerBoard?'Dealer':'Table'} showing: <b style="color:var(--ink)">${bjTotal(up)}</b></span>`; }
+  const board = `<div class="sect board"><h4><span>Table${st.dealerBoard?' · Dealer\'s hand':''}</span>${boardTot}</h4><div class="row">${
+    boardCards.length? boardCards.map(b=>`<div class="bc">${cardHTML(b.c,{attr: isDealer?` data-a="flipone" data-i="${b.i}"`:''})}${b.by?`<div class="by">${esc(b.by)}</div>`:''}</div>`).join('') : '<div class="empty">Empty</div>'
+  }</div></div>`;
+
+  // piles
+  const dm=st.discard;
+  let discardEl='';
+  if(dm==='off') discardEl='';
+  else if(dm==='hidden') discardEl=`<div class="pile"><div class="stack">${V.discardCount?cardHTML(null)+`<span class="count">${V.discardCount}</span>`:'<div class="empty">Discard</div>'}</div><span>Discard (face-down)</span></div>`;
+  else discardEl=`<div class="pile"><div class="stack" ${dm==='all'&&V.discardCount?'data-a="openpile"':''}>${V.discardTop?cardHTML(V.discardTop)+`<span class="count">${V.discardCount}</span>`:'<div class="empty">Discard</div>'}</div><span>${dm==='all'?(V.discardCount?'Discard · tap to see all':'Discard'):'Discard'}</span></div>`;
+  const piles=`<div class="sect"><h4><span>Deck${dm!=='off'?' & discard':''}</span><span>${esc(DISCARD_LABEL[dm])}</span></h4><div class="piles">
+    <div class="pile"><div class="stack">${V.deck?cardHTML(null)+`<span class="count">${V.deck}</span>`:'<div class="empty">Deck empty</div>'}</div><span>Deck</span></div>${discardEl}</div></div>`;
+
+  // players
+  const plist=`<div class="sect"><h4><span>Players (${V.players.length})</span>${isDealer?'<button class="btn sm alt" data-a="copylink">Invite</button>':''}</h4><div class="plist">${
+    V.players.map(p=>{
+      const you=p.id===V.you;
+      const minis=p.count? `<div class="minis">${Array.from({length:Math.min(p.count,8)}).map(()=>cardHTML(null,{size:'sm'})).join('')}</div>`:'';
+      const shown=p.hand&&p.hand.length?`<div class="row">${p.hand.map(c=>cardHTML(c,{size:'sm'})).join('')}${st.totals?`<span class="tag">${bjTotal(p.hand)}</span>`:''}</div>`:'';
+      return `<div class="pl${V.turn===p.id&&st.turns?' turn':''}"><div class="hd"><span class="nm">${esc(p.name)}${you?' (you)':''}</span>
+        ${p.isHost?'<span class="tag g">Dealer</span>':''}${p.status?`<span class="tag st">${esc(p.status)}</span>`:''}${p.revealed?'<span class="tag">Revealed</span>':''}${!p.online?'<span class="tag off">Away</span>':''}
+        <span class="tag">${p.count} card${p.count===1?'':'s'}</span></div>${!you&&!p.hand?minis:''}${shown}</div>`;
+    }).join('')
+  }</div></div>`;
+
+  const logEl=`<div class="sect"><h4><span>Activity</span></h4><div class="log">${V.log.slice().reverse().map(l=>`<div>${esc(l)}</div>`).join('')||'<div>Waiting for the dealer…</div>'}</div></div>`;
+
+  // ready-to-deal card (dealer) / waiting note (players), shown until the round starts
+  let ready='';
+  const pr=PRESETS[V.preset]||PRESETS.custom;
+  if(V.fresh && isDealer){
+    const sp=setupPlan();
+    ready=`<div class="ready"><div class="rh"><div class="gico">${esc(pr.icon)}</div><div style="flex:1;min-width:0"><h3>${esc(pr.name)}</h3><div class="small">${esc(sp.text)}</div></div></div>
+      ${pr.setup.deal?`<div class="inline"><span class="small" style="flex:1">Cards each</span><div class="stepper"><button data-a="su-">−</button><span>${sp.all?'All':sp.each}</span><button data-a="su+">+</button></div></div>`:''}
+      <button class="btn big" data-a="setup" ${!sp.n?'disabled':''}>${sp.each||sp.all?`Deal${sp.n?` to ${sp.n} player${sp.n===1?'':'s'}`:''}`:'Start game'}</button>
+      ${!sp.n?'<div class="small">Waiting for players – share the code <b>'+esc(V.code)+'</b>.</div>':''}
+      <div class="btns"><button class="btn sm alt" data-a="games">Change game</button><button class="btn sm alt" data-a="rules">How to play</button></div></div>`;
+  } else if(V.fresh){
+    ready=`<div class="banner">Next up: <b>${esc(pr.name)}</b> – waiting for the dealer to deal.</div>`;
+  }
+  // quick dealer actions once a round is going
+  let qbar='';
+  if(isDealer && !V.fresh){
+    const Q=[];
+    if(st.poker) Q.push(`<button class="btn sm" data-a="d:flop">Flop</button><button class="btn sm" data-a="d:turn">Turn</button><button class="btn sm" data-a="d:river">River</button>`);
+    if(st.dealerBoard) Q.push(`<button class="btn sm" data-a="d:boardup" ${!V.deck?'disabled':''}>Dealer hit</button><button class="btn sm alt" data-a="d:flipboard" ${!V.board.length?'disabled':''}>Flip dealer</button>`);
+    if(!st.poker && !st.dealerBoard && V.board.length) Q.push(`<button class="btn sm alt" data-a="d:clearboard">Clear table</button>`);
+    Q.push(`<button class="btn sm alt" data-a="redeal">Deal next hand</button><button class="btn sm alt" data-a="games">Change game</button>`);
+    qbar=`<div class="qbar">${Q.join('')}</div>`;
+  }
+
+  // Ride the Bus panel
+  let bus='';
+  const B=V.bus;
+  if(st.bus && B){
+    const ps=V.players.filter(p=>p.online||p.count);
+    if(B.phase==='guess'){
+      bus=`<div class="ready"><h3>Part 1 · The guesses</h3>${isDealer?`<div class="small">Ask the question, then tap a name to deal them a card.</div><div class="btns">${ps.map(p=>`<button class="btn alt" data-a="busdeal" data-to="${esc(p.id)}" ${p.count>=4?'disabled':''}>${esc(p.id===V.you?'Me':p.name)} · ${p.count<4?esc(BUS_Q[p.count]):'done'}</button>`).join('')||'<span class="small">Waiting for players…</span>'}</div>
+        <button class="btn" data-a="d:buspyramid">Build the pyramid (Part 2)</button>`:`<div class="small">Your next question: <b>${V.hand.length<4?esc(BUS_Q[V.hand.length]):'All done – wait for the pyramid'}</b></div>`}</div>`;
+    } else if(B.phase==='pyramid'){
+      let i=0; const rows=BUS_LEVELS.map((n,l)=>{ const cs=V.board.slice(i,i+n); i+=n; return `<div class="row" style="justify-content:center">${cs.map(b=>cardHTML(b.c,{attr:isDealer&&!b.up?` data-a="busflip" data-i="${b.i}"`:''})).join('')}</div>`; }).reverse().join('');
+      const cur=B.cur!=null?V.board[B.cur]:null;
+      const allUp=V.board.length&&V.board.every(b=>b.up);
+      bus=`<div class="ready"><h3>Part 2 · The pyramid</h3><div class="small">${isDealer?'Tap a face-down card to flip it.':'First to match the flipped card taps Match.'}${cur&&cur.c?` Flipped: <b>${esc(cname(cur.c))}</b>${B.claimed?` – matched by ${esc(B.claimed)}`:''}`:''}</div>${rows}
+        ${isDealer&&allUp?`<div class="small">All 15 flipped – who rides the bus?</div><div class="btns">${ps.slice().sort((a,b)=>b.count-a.count).map(p=>`<button class="btn alt" data-a="busride" data-to="${esc(p.id)}">${esc(p.id===V.you?'Me':p.name)} (${p.count})</button>`).join('')}</div>`:''}</div>`;
+    } else if(B.phase==='ride'||B.phase==='done'){
+      const r=V.players.find(p=>p.id===B.rider)||{}; const cs=r.id===V.you?V.hand:(r.hand||[]);
+      const q=B.phase==='done'?'Off the bus! 🎉':B.wrong?'Wrong – start over: Red or black?':BUS_Q[cs.length]||'';
+      bus=`<div class="ready"><h3>🚌 ${esc(r.name||'')} rides the bus · try ${B.tries}</h3><div class="small">${esc(q)}</div>
+        ${isDealer&&cs.length?`<div class="small">Correct answer: <b>${esc(busAnswer(cs,cs.length-1))}</b></div>`:''}
+        ${isDealer?(B.phase==='done'?`<button class="btn" data-a="d:busagain">Play again</button>`:B.judged?`<button class="btn" data-a="d:busridedeal">Deal ${esc(r.name||'')} a card</button>`:`<div class="btns"><button class="btn" data-a="busok">Right</button><button class="btn danger" data-a="busno">Wrong</button></div>`):''}</div>`;
+    }
+  }
+
+  const banner = role==='player'&&conn!=='open' ? `<div class="banner">Reconnecting to the table… your hand is safe.</div>`
+    : turnP ? `<div class="banner">${turnP.id===V.you?'<b>Your turn!</b>':`<b>${esc(turnP.name)}'s</b> turn`}</div>` : '';
+
+  // hand
+  const hidden = hideHand && !peeking;
+  const handHTML = V.hand.length ? V.hand.map(c=> hidden ? cardHTML(null,{attr:` data-c="${c.id}"`}) : cardHTML(c,{sel:sel.has(c.id),attr:` data-c="${c.id}"`})).join('')
+    : `<div class="none">${V.deck||V.discardCount?'No cards in your hand':'Waiting for cards…'}</div>`;
+  const tot = st.totals && V.hand.length ? ` · total <b>${bjTotal(V.hand)}</b>${bjTotal(V.hand)>21?' <span style="color:#ffb4a8">BUST</span>':''}` : '';
+
+  const A=[];
+  if(st.allowFlip || (isDealer&&false)) A.push(`<button class="btn sm" data-a="flip" ${(!V.deck||(st.turns&&!myTurn&&!isDealer))?'disabled':''}>Flip</button>`);
+  if(st.allowDraw) A.push(`<button class="btn sm${st.allowFlip?' alt':''}" data-a="draw" ${!V.deck?'disabled':''}>${st.totals?'Hit':'Draw'}</button>`);
+  if(st.allowTakeDiscard && (dm==='top'||dm==='all')) A.push(`<button class="btn sm alt" data-a="take" ${!V.discardTop?'disabled':''}>Take discard</button>`);
+  if(V.hand.length){
+    A.push(`<button class="btn sm alt" data-a="play" ${!n?'disabled':''}>Play${n?` ${n}`:''}</button>`);
+    if(dm!=='off') A.push(`<button class="btn sm alt" data-a="discard" ${!n?'disabled':''}>Discard${n?` ${n}`:''}</button>`);
+    if(st.allowGive) A.push(`<button class="btn sm alt" data-a="give" ${!n?'disabled':''}>Give</button>`);
+  }
+  if(st.totals) A.push(`<button class="btn sm alt" data-a="stand">Stand</button>`);
+  if(st.bus && V.bus && V.bus.phase==='pyramid' && V.bus.cur!=null && !V.bus.claimed && V.hand.length) A.push(`<button class="btn sm" data-a="busmatch">Match</button>`);
+  if(st.poker) A.push(`<button class="btn sm alt" data-a="fold" ${!V.hand.length?'disabled':''}>Fold</button>`);
+  if(st.turns && myTurn && !st.kingsRules) A.push(`<button class="btn sm" data-a="endturn">End turn</button>`);
+  A.push(`<button class="btn sm alt" data-a="reveal">${me.revealed?'Hide hand':'Reveal'}</button>`);
+  A.push(`<button class="btn sm alt" data-a="more">More</button>`);
+
+  const keepScroll = document.querySelector('.hand')?.scrollLeft||0;
+  document.getElementById('app').innerHTML=`
+  <div class="game">
+    <div class="top">
+      <button class="codechip" data-a="copylink" title="Share table"><span class="dot${role==='player'&&conn!=='open'?' off':''}"></span>${esc(V.code)}</button>
+      ${isDealer?`<button class="titlebtn" data-a="games"><span>${esc(V.presetName)}</span><i>▼</i></button>`:`<div class="title">${esc(V.presetName)}</div>`}
+      <button class="btn sm alt" data-a="rules">Rules</button>
+      ${isDealer?'<button class="btn sm" data-a="dealer">Dealer</button>':''}
+    </div>
+    <div class="main">${banner}${st.bus?'':ready}${bus}${st.bus?'':qbar}${flip}${st.bus?'':board}${piles}${plist}${logEl}</div>
+    <div class="dock"><div>
+      <div class="dh"><b>Your hand</b><span>${V.hand.length} card${V.hand.length===1?'':'s'}${hidden?'':tot}</span><span class="sp"></span>
+        ${V.hand.length?`<button class="btn sm alt" data-a="togglehide">${hideHand?'Show':'Hide'}</button>`:''}</div>
+      ${hidden&&V.hand.length?'<div class="small" style="margin:-2px 0 0">Hand hidden · press and hold the cards to peek</div>':''}
+      <div class="hand${hidden?' peekable':''}" id="hand">${handHTML}</div>
+      <div class="acts">${A.join('')}</div>
+    </div></div>
+  </div>`;
+  const h=document.getElementById('hand'); if(h) h.scrollLeft=keepScroll;
+}
+
+/* ---- sheets ---- */
+function openSheet(k){ sheetOpen=k; renderSheet(); }
+function closeSheet(){ sheetOpen=null; document.getElementById('sheet').innerHTML=''; }
+function renderSheet(){
+  if(!V||!sheetOpen) return closeSheet();
+  const root=document.getElementById('sheet');
+  const prev=root.querySelector('.sheet'); const top=prev?prev.scrollTop:0;
+  let title='', body='';
+  const st=V.settings;
+  if(sheetOpen==='rules'){ title=V.presetName; body=`<div class="rules">${esc(V.rules)}</div><div class="grp"><h5>This table</h5><div class="small">Discard: ${esc(DISCARD_LABEL[st.discard])} · Players ${st.allowDraw?'can':'can’t'} draw · ${st.allowFlip?'can':'can’t'} flip · ${st.allowTakeDiscard?'can':'can’t'} take from discard · ${st.allowGive?'can':'can’t'} pass cards</div></div>`; }
+  else if(sheetOpen==='games'){
+    title='Pick a game';
+    body=GAME_CATS.map(([cat,label])=>`<div class="grp"><h5>${esc(label)}</h5><div class="ggrid">${Object.entries(PRESETS).filter(([,p])=>p.cat===cat).map(([k,p])=>
+      `<button class="gtile${k===V.preset?' on':''}" data-a="pickgame" data-k="${k}"><div class="gico">${esc(p.icon)}</div><div><b>${esc(p.name)}</b><span>${esc(p.blurb)}</span></div></button>`).join('')}</div></div>`).join('')
+      +'<div class="small">Tap a game to set up the table, then hit Deal.</div>';
+  }
+  else if(sheetOpen==='give'){
+    title=`Give ${sel.size} card${sel.size===1?'':'s'} to…`;
+    body=`<div class="btns">${V.players.filter(p=>p.id!==V.you).map(p=>`<button class="btn alt" data-a="giveto" data-to="${esc(p.id)}">${esc(p.name)}</button>`).join('')||'<div class="small">No one else is here yet.</div>'}</div>`;
+  }
+  else if(sheetOpen==='pile'){
+    title=`Discard pile (${V.discardCount})`;
+    body=`<div class="row">${(V.discardAll||[]).slice().reverse().map(c=>cardHTML(c,{size:'sm'})).join('')}</div>${V.discardCount>60?'<div class="small" style="margin-top:8px">Showing the latest 60.</div>':''}`;
+  }
+  else if(sheetOpen==='more'){
+    title='More';
+    body=`<div class="grp"><h5>Your hand</h5><div class="btns">
+      <button class="btn alt" data-a="sort" data-by="rank">Sort by rank</button><button class="btn alt" data-a="sort" data-by="suit">Sort by suit</button>
+      <button class="btn alt" data-a="playdown" ${!sel.size?'disabled':''}>Play face-down</button>
+      ${!st.poker?`<button class="btn alt" data-a="fold" ${!V.hand.length?'disabled':''}>Fold / muck hand</button>`:''}
+      ${!st.allowDraw?`<button class="btn alt" data-a="drawx" ${!V.deck?'disabled':''}>Draw anyway</button>`:''}</div></div>
+      <div class="grp"><h5>Status everyone sees</h5><div class="btns">${['Stand','Done','Pass','Bust','Drinking 🍺'].map(s=>`<button class="btn alt" data-a="setstatus" data-v="${esc(s)}">${esc(s)}</button>`).join('')}<button class="btn alt" data-a="setstatus" data-v="">Clear</button></div></div>
+      <div class="grp"><h5>Table</h5><div class="btns"><button class="btn alt" data-a="copylink">Share invite link</button><button class="btn danger" data-a="leave">${role==='host'?'Close table':'Leave table'}</button></div></div>`;
+    if(!st.allowDraw) body=body.replace('<button class="btn alt" data-a="drawx"','<button class="btn alt hidden" data-a="drawx"');
+  }
+  else if(sheetOpen==='dealer'){
+    title='Dealer controls';
+    const others=V.players;
+    if(!oneTo || !others.find(p=>p.id===oneTo)) oneTo=others[0]?.id;
+    const tog=(k,label)=>`<label class="tog"><span>${label}</span><input type="checkbox" data-set="${k}" ${st[k]?'checked':''}></label>`;
+    const nPlayers=V.players.filter(p=>p.online&&(st.dealerPlays||p.id!==V.hostId)).length;
+    body=`
+    <div class="grp"><h5>Game</h5>
+      <button class="btn alt" data-a="games">${esc(V.presetName)} · change game</button>
+      <div class="small">Changing the game starts a new round.</div></div>
+    <div class="grp"><h5>Deal</h5>
+      <div class="inline"><div class="stepper"><button data-a="dn-">−</button><span id="dn">${dealN}</span><button data-a="dn+">+</button></div>
+        <button class="btn" data-a="deal" ${!V.deck||!nPlayers?'disabled':''}>Deal ${dealN} to everyone</button></div>
+      <div class="small">${nPlayers} player${nPlayers===1?'':'s'} get cards · ${V.deck} left in deck</div>
+      <div class="inline"><div class="stepper"><button data-a="on-">−</button><span>${oneN}</span><button data-a="on+">+</button></div>
+        <select class="t" style="width:auto;flex:1" data-a="oneto">${others.map(p=>`<option value="${esc(p.id)}" ${p.id===oneTo?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+        <button class="btn alt" data-a="dealone" ${!V.deck?'disabled':''}>Deal</button></div>
+    </div>
+    <div class="grp"><h5>Table cards</h5><div class="btns">
+      ${st.poker?`<button class="btn" data-a="d:flop">Flop</button><button class="btn" data-a="d:turn">Turn</button><button class="btn" data-a="d:river">River</button>`:''}
+      <button class="btn alt" data-a="d:boardup">${st.dealerBoard?'Dealer up':'Deal 1 face-up'}</button>
+      <button class="btn alt" data-a="d:boarddown">${st.dealerBoard?'Dealer down':'Deal 1 face-down'}</button>
+      <button class="btn alt" data-a="d:flipboard" ${!V.board.length?'disabled':''}>Flip all</button>
+      <button class="btn alt" data-a="d:clearboard" ${!V.board.length?'disabled':''}>Clear table</button>
+      ${st.discard!=='off'?`<button class="btn alt" data-a="d:flippile" ${!V.deck?'disabled':''}>Flip 1 to discard</button>`:''}
+      </div><div class="small">Tip: tap a table card on your screen to flip just that one.</div></div>
+    <div class="grp"><h5>Deck</h5><div class="btns">
+      <button class="btn" data-a="d:newround">New round (collect & shuffle)</button>
+      ${st.discard!=='off'?`<button class="btn alt" data-a="d:reshuffle" ${!V.discardCount?'disabled':''}>Shuffle discard into deck</button>`:''}
+      <button class="btn alt" data-a="d:clearstatus">Clear statuses</button></div>
+      <div class="inline"><span class="small" style="flex:1">Decks</span><div class="stepper"><button data-a="dk-">−</button><span>${st.decks}</span><button data-a="dk+">+</button></div></div>
+      ${tog('jokers','Include jokers')}
+    </div>
+    <div class="grp"><h5>Discard pile</h5>
+      <select class="t" data-setsel="discard">${Object.entries(DISCARD_LABEL).map(([k,l])=>`<option value="${k}" ${st.discard===k?'selected':''}>${esc(l)}</option>`).join('')}</select>
+    </div>
+    <div class="grp"><h5>Player permissions</h5>
+      ${tog('allowDraw','Players can draw from the deck')}
+      ${tog('allowFlip','Players can flip deck → discard')}
+      ${tog('allowTakeDiscard','Players can take the top discard')}
+      ${tog('allowGive','Players can pass cards to each other')}
+      ${tog('dealerPlays','Dealer gets dealt a hand too')}
+      ${tog('turns','Track turns')}
+      ${tog('totals','Show blackjack totals')}
+      ${tog('kingsRules',"Show King's Cup rules on flips")}
+      ${tog('poker','Show poker buttons (flop/turn/river, fold)')}
+      ${tog('hideHand','Hide hands by default (hold to peek)')}
+    </div>
+    ${st.turns?`<div class="grp"><h5>Turns</h5><div class="btns"><button class="btn alt" data-a="d:nextturn">Next turn</button>${V.players.map(p=>`<button class="btn sm alt" data-a="setturn" data-to="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div></div>`:''}
+    <div class="grp"><h5>Players</h5>${V.players.filter(p=>!p.isHost).map(p=>`<div class="inline"><span style="flex:1">${esc(p.name)}${p.online?'':' · away'}</span><button class="btn sm danger" data-a="kick" data-to="${esc(p.id)}">Remove</button></div>`).join('')||'<div class="small">Share the code <b>'+esc(V.code)+'</b> so friends can join.</div>'}
+      ${V.players.some(p=>!p.online&&!p.isHost)?'<button class="btn sm alt" data-a="d:cleanup">Remove everyone who left</button>':''}</div>`;
+  }
+  root.innerHTML=`<div class="scrim" data-a="close"><div class="sheet" data-stop="1"><div class="sh"><h3>${esc(title)}</h3><button class="btn sm alt" data-a="close">Done</button></div>${body}</div></div>`;
+  const sh=root.querySelector('.sheet'); if(sh) sh.scrollTop=top;
+}
+
+/* ---- events ---- */
+function copyLink(){
+  const url=location.origin+location.pathname+'?join='+V.code+(LOCAL?'&local':'');
+  if(navigator.share){ navigator.share({title:'Pocket Deck',text:`Join my card table – code ${V.code}`,url}).catch(()=>{}); return; }
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>toast('Invite link copied'),()=>toast(`Table code: ${V.code}`));
+}
+document.addEventListener('click',e=>{
+  const card=e.target.closest('.hand [data-c]');
+  if(card && V){ if(hideHand) return; const id=card.dataset.c; sel.has(id)?sel.delete(id):sel.add(id); renderGame(); return; }
+  const el=e.target.closest('[data-a]'); if(!el) return;
+  if(el.dataset.a==='close' && e.target.closest('[data-stop]') && !e.target.closest('button')) return; // clicks inside sheet body
+  if(el.tagName==='SELECT') return;
+  const a=el.dataset.a; const ids=[...sel];
+  switch(a){
+    case 'close': closeSheet(); break;
+    case 'rules': case 'dealer': case 'more': case 'games': openSheet(a); break;
+    case 'pickgame': {
+      const k=el.dataset.k; if(!PRESETS[k]) break;
+      if(k!==V.preset){ if(!V.fresh && !confirm(`Switch to ${PRESETS[k].name}? Everyone's cards get collected and shuffled.`)) break; send({t:'preset',key:k}); }
+      closeSheet(); break;
+    }
+    case 'setup': send(setupN!=null?{t:'setup',n:setupN}:{t:'setup'}); break;
+    case 'redeal': if(confirm('Collect all cards, shuffle and deal the next hand?')) send(setupN!=null?{t:'setup',n:setupN}:{t:'setup'}); break;
+    case 'su-': case 'su+': { const sp=setupPlan(); const cur=sp.all?Math.floor(V.deck/Math.max(1,sp.n)):sp.each; setupN=Math.max(1,Math.min(52,cur+(a==='su+'?1:-1))); renderGame(); break; }
+    case 'openpile': openSheet('pile'); break;
+    case 'copylink': copyLink(); break;
+    case 'leave': if(confirm(role==='host'?'Close the table for everyone?':'Leave this table?')){ if(role==='host') ls.del('pd_host'); leave(); } break;
+    case 'flip': send({t:'flip'}); break;
+    case 'draw': case 'drawx': send({t:'draw'}); if(a==='drawx') closeSheet(); break;
+    case 'take': send({t:'take'}); break;
+    case 'play': if(ids.length){send({t:'play',ids}); sel.clear();} break;
+    case 'playdown': if(ids.length){send({t:'play',ids,down:true}); sel.clear(); closeSheet();} break;
+    case 'discard': if(ids.length){send({t:'discard',ids}); sel.clear();} break;
+    case 'give': if(ids.length) openSheet('give'); break;
+    case 'giveto': send({t:'give',ids,to:el.dataset.to}); sel.clear(); closeSheet(); break;
+    case 'busdeal': send({t:'busdeal',to:el.dataset.to}); break;
+    case 'busflip': send({t:'busflip',i:+el.dataset.i}); break;
+    case 'busride': if(confirm('Send this player on the bus?')) send({t:'busride',to:el.dataset.to}); break;
+    case 'busok': send({t:'busjudge',ok:true}); break;
+    case 'busno': send({t:'busjudge',ok:false}); break;
+    case 'busmatch': { const B=V.bus; const cur=B&&B.cur!=null?V.board[B.cur]:null; const c=cur&&cur.c&&V.hand.find(x=>x.r===cur.c.r); if(c) send({t:'busmatch',id:c.id}); else toast('No match in your hand'); break; }
+    case 'stand': send({t:'status',v:'Stand'}); break;
+    case 'fold': if(confirm('Fold your hand?')){ send({t:'fold'}); sel.clear(); closeSheet(); } break;
+    case 'endturn': send({t:'endturn'}); break;
+    case 'reveal': { const me=V.players.find(p=>p.id===V.you); send({t:'reveal',on:!(me&&me.revealed)}); break; }
+    case 'togglehide': hideHand=!hideHand; sel.clear(); renderGame(); break;
+    case 'sort': send({t:'sort',by:el.dataset.by}); closeSheet(); break;
+    case 'setstatus': send({t:'status',v:el.dataset.v}); closeSheet(); break;
+    case 'flipone': send({t:'flipone',i:+el.dataset.i}); break;
+    case 'dn-': dealN=Math.max(1,dealN-1); renderSheet(); break;
+    case 'dn+': dealN=Math.min(52,dealN+1); renderSheet(); break;
+    case 'on-': oneN=Math.max(1,oneN-1); renderSheet(); break;
+    case 'on+': oneN=Math.min(52,oneN+1); renderSheet(); break;
+    case 'dk-': send({t:'set',k:'decks',v:Math.max(1,V.settings.decks-1)}); break;
+    case 'dk+': send({t:'set',k:'decks',v:Math.min(6,V.settings.decks+1)}); break;
+    case 'deal': send({t:'deal',n:dealN}); toast(`Dealt ${dealN}`); break;
+    case 'dealone': send({t:'dealone',to:oneTo,n:oneN}); break;
+    case 'setturn': send({t:'setturn',to:el.dataset.to}); break;
+    case 'kick': { const p=V.players.find(x=>x.id===el.dataset.to); if(p&&confirm(`Remove ${p.name}? Their cards go to the discard.`)) send({t:'kick',to:p.id}); break; }
+    default: if(a.startsWith('d:')){ const t=a.slice(2); if(t==='newround'&&!confirm('Collect all cards and reshuffle?')) return; send({t}); }
+  }
+});
+document.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.dataset.set){ send({t:'set',k:el.dataset.set,v:el.checked}); return; }
+  if(el.dataset.setsel){ send({t:'set',k:el.dataset.setsel,v:el.value}); return; }
+  if(el.dataset.a==='oneto'){ oneTo=el.value; return; }
+});
+// press-and-hold to peek at a hidden hand
+function peek(on){ if(!V||!hideHand||peeking===on) return; peeking=on; renderGame(); }
+document.addEventListener('pointerdown',e=>{ if(e.target.closest('#hand')) peek(true); });
+['pointerup','pointercancel','blur'].forEach(ev=>window.addEventListener(ev,()=>peek(false)));
+document.addEventListener('contextmenu',e=>{ if(e.target.closest('#hand')) e.preventDefault(); });
+window.addEventListener('pagehide',()=>{ if(role==='player'&&CT) CT.send({t:'bye',pid:myId}); });
+
+/* ---- boot ---- */
+(function boot(){
+  let sess=null; try{ sess=JSON.parse(ss.get('pd_session')||'null'); }catch(e){}
+  const name=ls.get('pd_name');
+  if(sess && name){
+    if(sess.role==='host'){ try{ const saved=JSON.parse(ls.get('pd_host')||'null'); if(saved) return startHost(saved,name); }catch(e){} }
+    if(sess.role==='player' && sess.code) return startPlayer(sess.code,name);
+  }
+  renderHome();
+})();
+</script>
+</body>
+</html>
